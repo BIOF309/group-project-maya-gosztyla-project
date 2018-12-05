@@ -1,5 +1,6 @@
 % WGS Wizard
 % Maya Gosztyla
+
 # What is BLAST?
  - Basic local alignment search tool
  - Used compare DNA, RNA, or protein sequences
@@ -27,6 +28,7 @@
 12. Put both exons together along with splice codon and translate it.
 13. Put the nucleotides and amino acids in FastA format and record in an excel sheet.
 #### Basically, lots of clicking around to different website and painstakingly searching for codons/splice sites by hand! Often took 15+ minutes to find a single gene in one species (and we did HUNDREDS of these).
+
 # What is WGS Wizard?
 WGS Wizard automates the process of finding a gene sequence from a WGS BLAST result. This enhances efficiency (~15-30 seconds per query!) and also eliminates human error/bias while enhancing reproducibility.
 - Step 1: Import packackes (mainly built on Biopython)
@@ -34,6 +36,7 @@ WGS Wizard automates the process of finding a gene sequence from a WGS BLAST res
 - Step 3: Run the BLAST
 - Step 4: Figure out the gene sequence
 Step 4 is the hard part! Focusing on that for this presentation.
+
 # Getting the scaffold and ordering exons
 ```python
 def wgsseq(email: str, blast: list):
@@ -55,6 +58,7 @@ def wgsseq(email: str, blast: list):
         exon1 = blast[0].alignments[0].hsps[1]
         exon2 = blast[0].alignments[0].hsps[0]
 ```
+
 # Finding exon 1
 ```python
     #Find the first upstream in-frame stop codon
@@ -76,6 +80,7 @@ def wgsseq(email: str, blast: list):
     e1splice = e1splice + exon1.sbjct_end - 6
     exon1_complete = seq_record.seq[e1start : e1splice]
 ```
+
 # Finding exon 2
 ```python
     #Find the exon2 splice site
@@ -87,13 +92,16 @@ def wgsseq(email: str, blast: list):
     geneseq = geneseq[0 : length + 3]
     return geneseq
 ```
+
 # Example results
 I BLASTed the Drosophila melanogaster Commisureless gene against 3 other fly species (virilis, willisoni, and albomicans).
 Time to complete using old method: ~1 hour
 Time to complete using WGS Wizard: ~2 minutes
 ![](/Users/mayagosztyla/Screen Shot 2018-12-04 at 9.04.31 PM.png)
+
 # Example results (cont.)
 ![](/Users/mayagosztyla/Desktop/Screen Shot 2018-12-03 at 7.18.46 PM.png)
+
 # Current Limitations
 WGS Wizard still has lots of areas I want to improve! Currently the program only works for genes that satisfy the following requirements:
 - Must have exactly 2 exons
