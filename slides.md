@@ -97,10 +97,10 @@ def wgsseq(email: str, blast: list):
 I BLASTed the Drosophila melanogaster Commisureless gene against 3 other fly species (virilis, willisoni, and albomicans).
 Time to complete using old method: ~1 hour
 Time to complete using WGS Wizard: ~2 minutes
-![](/Users/mayagosztyla/Screen Shot 2018-12-04 at 9.04.31 PM.png)
+![](1.png)
 
 # Example results (cont.)
-![](/Users/mayagosztyla/Desktop/Screen Shot 2018-12-03 at 7.18.46 PM.png)
+![](2.png)
 
 # Current Limitations
 WGS Wizard still has lots of areas I want to improve! Currently the program only works for genes that satisfy the following requirements:
