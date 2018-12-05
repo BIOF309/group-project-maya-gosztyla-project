@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Maya Gosztyla" />
+  <title>WGS Wizard</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+    href="http://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" />
+  <script src="http://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js"
+    charset="utf-8" type="text/javascript"></script>
+</head>
+<body>
+<div class="slide titlepage">
+  <h1 class="title">WGS Wizard</h1>
+  <p class="author">
+Maya Gosztyla
+  </p>
+</div>
+<div id="what-is-blast" class="slide section level1">
+<h1>What is BLAST?</h1>
+<ul>
+<li>Basic local alignment search tool</li>
+<li>Used compare DNA, RNA, or protein sequences</li>
+<li>Important for finding <strong>homologs</strong> (genes with a common origin in different species)</li>
+</ul>
+</div>
+<div id="the-wgs-database-in-ncbi" class="slide section level1">
+<h1>The WGS database in NCBI</h1>
+<ul>
+<li>Stands for Whole Genome Shotgun</li>
+<li>&quot;Genome assemblies of incomplete genomes or incomplete chromosomes of prokaryotes or eukaryotes that are generally being sequenced by a whole genome shotgun strategy.&quot; -NCBI</li>
+<li>Useful for looking at species that have not been thoroughly studied before.</li>
+<li>But, genes are often un-annotated or incorrectly annotated (especially for insects).</li>
+</ul>
+</div>
+<div id="how-my-undergrad-lab-did-their-wgs-blast" class="slide section level1">
+<h1>How my undergrad lab did their WGS BLAST</h1>
+<p><sub> 1. Look up a gene of interest and find the protein sequence. 2. Copy protein sequence into NCBI tBLASTn program. 3. Enter species name of interest (typically one at a time). 4. Execute BLAST. 5. Open the WGS scaffold of potential hit. 6. Copy scaffold into EMBOSS Sixpack translation tool. 7. Find the open reading frame that includes the sequence of interest. 8. For the first exon, keep going upstream until you reach a stop, and then backtrack to find the first potential starting methionine. 9. For the other end of exon 1, look for a splice site: GT(A/G)AGT and record down what nucleotide is part of the splice codon. 10. At the beginning of exon 2, look for the other splice site: (C/T)AG/(A/G) and record the two nucleotides on the right of AG in the splice site and combine it with the single nucleotide on the first exon splice site to determine the splice codon amino acid. 11. Continue on with exon 2 until a stop codon is reached. 12. Put both exons together along with splice codon and translate it. 13. Put the nucleotides and amino acids in FastA format and record in an excel sheet.</p>
+<h4 id="basically-lots-of-clicking-around-to-different-website-and-painstakingly-searching-for-codonssplice-sites-by-hand-often-took-15-minutes-to-find-a-single-gene-in-one-species-and-we-did-hundreds-of-these.">Basically, lots of clicking around to different website and painstakingly searching for codons/splice sites by hand! Often took 15+ minutes to find a single gene in one species (and we did HUNDREDS of these).</h4>
+</div>
+<div id="what-is-wgs-wizard" class="slide section level1">
+<h1>What is WGS Wizard?</h1>
+<p>WGS Wizard automates the process of finding a gene sequence from a WGS BLAST result. This enhances efficiency (~15-30 seconds per query!) and also eliminates human error/bias while enhancing reproducibility.</p>
+<ul>
+<li>Step 1: Import packackes (mainly built on Biopython)</li>
+<li>Step 2: Define the WGS database</li>
+<li>Step 3: Run the BLAST</li>
+<li>Step 4: Figure out the gene sequence</li>
+</ul>
+<p>Step 4 is the hard part! Focusing on that for this presentation.</p>
+</div>
+<div id="getting-the-scaffold-and-ordering-exons" class="slide section level1">
+<h1>Getting the scaffold and ordering exons</h1>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> wgsseq(email: <span class="bu">str</span>, blast: <span class="bu">list</span>):
+    <span class="co">&quot;&quot;&quot;</span>
+<span class="co">    :param email: Your email address (required for Entrez queries).</span>
+<span class="co">    :param blast: A list of BLAST results.</span>
+<span class="co">    :return: A Bio.Seq.Seq object containing the complete gene sequence.</span>
+<span class="co">    &quot;&quot;&quot;</span>
+    <span class="co">#Get scaffold sequence</span>
+    Entrez.email <span class="op">=</span> email
+    accession <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].accession
+    <span class="cf">with</span> Entrez.efetch(db<span class="op">=</span><span class="st">&quot;nucleotide&quot;</span>, rettype<span class="op">=</span><span class="st">&quot;gb&quot;</span>, retmode<span class="op">=</span><span class="st">&quot;text&quot;</span>, <span class="bu">id</span><span class="op">=</span>accession) <span class="im">as</span> handle:
+        seq_record <span class="op">=</span> SeqIO.read(handle, <span class="st">&quot;gb&quot;</span>)
+    <span class="co">#Put exons in proper order</span>
+    <span class="cf">if</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>].sbjct_start <span class="op">&lt;</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>].sbjct_start:
+        exon1 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>]
+        exon2 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>]
+    <span class="cf">else</span>:
+        exon1 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>]
+        exon2 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>]</code></pre></div>
+</div>
+<div id="finding-exon-1" class="slide section level1">
+<h1>Finding exon 1</h1>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">    <span class="co">#Find the first upstream in-frame stop codon</span>
+    e1upstream <span class="op">=</span> seq_record.seq[<span class="dv">0</span> : exon1.sbjct_start <span class="op">+</span> <span class="dv">4</span>]
+    e1stop <span class="op">=</span> e1upstream.rfind(<span class="st">&#39;TAA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TGA&#39;</span>)
+    <span class="cf">while</span> (exon1.sbjct_start <span class="op">-</span> <span class="dv">1</span> <span class="op">-</span> e1stop) <span class="op">%</span> <span class="dv">3</span> <span class="op">!=</span> <span class="dv">0</span> <span class="kw">and</span> e1stop <span class="op">!=</span> exon1.sbjct_start:
+        e1stop <span class="op">=</span> e1upstream[<span class="dv">0</span> : e1stop].rfind(<span class="st">&#39;TAA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TGA&#39;</span>)
+    <span class="co">#Find the first in-frame start codon after the stop</span>
+    e1start <span class="op">=</span> e1upstream[e1stop : ].find(<span class="st">&#39;ATG&#39;</span>)
+    <span class="cf">if</span> e1start <span class="op">!=</span> <span class="op">-</span><span class="dv">1</span>:
+        e1start <span class="op">=</span> e1start <span class="op">+</span> e1stop
+        <span class="cf">while</span> (exon1.sbjct_start <span class="op">-</span> <span class="dv">1</span> <span class="op">-</span> e1start) <span class="op">%</span> <span class="dv">3</span> <span class="op">!=</span> <span class="dv">0</span> <span class="kw">and</span> e1start <span class="op">!=</span> exon1.sbjct_start:
+            e1start <span class="op">=</span> e1upstream[e1stop <span class="op">+</span> e1start <span class="op">+</span> <span class="dv">1</span> : ].find(<span class="st">&#39;ATG&#39;</span>) <span class="op">+</span> e1stop <span class="op">+</span> e1start <span class="op">+</span> <span class="dv">1</span>
+    <span class="cf">else</span>:
+        e1start <span class="op">=</span> e1stop <span class="op">+</span> <span class="dv">3</span>
+    <span class="co">#Find the exon1 splice site</span>
+    e1downstream <span class="op">=</span> seq_record.seq[exon1.sbjct_end <span class="op">-</span> <span class="dv">6</span> :]
+    e1splice <span class="op">=</span> e1downstream.find(<span class="st">&#39;GTAAGT&#39;</span> <span class="kw">or</span> <span class="st">&#39;GTGAGT&#39;</span>)
+    e1splice <span class="op">=</span> e1splice <span class="op">+</span> exon1.sbjct_end <span class="op">-</span> <span class="dv">6</span>
+    exon1_complete <span class="op">=</span> seq_record.seq[e1start : e1splice]</code></pre></div>
+</div>
+<div id="finding-exon-2" class="slide section level1">
+<h1>Finding exon 2</h1>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">    <span class="co">#Find the exon2 splice site</span>
+    e2upstream <span class="op">=</span> seq_record.seq[<span class="dv">0</span> : exon2.sbjct_start <span class="op">+</span> <span class="dv">5</span>]
+    e2splice <span class="op">=</span> e2upstream.rfind(<span class="st">&#39;CAGA&#39;</span> <span class="kw">or</span> <span class="st">&#39;CAGG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAGA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAGG&#39;</span>) <span class="op">+</span> <span class="dv">3</span>
+    geneseq <span class="op">=</span> exon1_complete <span class="op">+</span> seq_record.seq[e2splice :]
+    <span class="co">#Find the stop codon</span>
+    length <span class="op">=</span> <span class="bu">len</span>(geneseq.translate(to_stop <span class="op">=</span> <span class="va">True</span>)) <span class="op">*</span> <span class="dv">3</span>
+    geneseq <span class="op">=</span> geneseq[<span class="dv">0</span> : length <span class="op">+</span> <span class="dv">3</span>]
+    <span class="cf">return</span> geneseq</code></pre></div>
+</div>
+<div id="example-results" class="slide section level1">
+<h1>Example results</h1>
+<p>I BLASTed the Drosophila melanogaster Commisureless gene against 3 other fly species (virilis, willisoni, and albomicans).</p>
+<p>Time to complete using old method: ~1 hour</p>
+<p>Time to complete using WGS Wizard: ~2 minutes</p>
+<div class="figure">
+<img src="/Users/mayagosztyla/Screen%20Shot%202018-12-04%20at%209.04.31%20PM.png" />
+
+</div>
+</div>
+<div id="example-results-cont." class="slide section level1">
+<h1>Example results (cont.)</h1>
+<div class="figure">
+<img src="/Users/mayagosztyla/Desktop/Screen%20Shot%202018-12-03%20at%207.18.46%20PM.png" />
+
+</div>
+</div>
+<div id="current-limitations" class="slide section level1">
+<h1>Current Limitations</h1>
+<p>WGS Wizard still has lots of areas I want to improve! Currently the program only works for genes that satisfy the following requirements:</p>
+<ul>
+<li>Must have exactly 2 exons</li>
+<li>Both exons must appear on the same WGS scaffold</li>
+<li>The species must be in the Drosophila genus, or use the same splice site motifs as Drosophila</li>
+</ul>
+<h2 id="any-questions">Any questions???</h2>
+</div>
+</body>
+</html>
