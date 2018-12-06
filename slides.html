@@ -32,7 +32,7 @@ a.sourceLine { text-indent: -1em; padding-left: 1em; }
 pre.numberSource a.sourceLine
   { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+  { content: attr(title);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
     border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
@@ -92,92 +92,123 @@ Maya Gosztyla
 <div id="what-is-blast" class="slide section level1">
 <h1>What is BLAST?</h1>
 <ul>
-<li>Basic local alignment search tool</li>
-<li>Used compare DNA, RNA, or protein sequences</li>
-<li>Important for finding <strong>homologs</strong> (genes with a common origin in different species)</li>
+<li><p>Basic local alignment search tool</p></li>
+<li><p>Used compare DNA, RNA, or protein sequences</p></li>
+<li><p>Important for finding <strong>homologs</strong> (genes with a common origin in different species)</p></li>
 </ul>
 </div>
 <div id="the-wgs-database-in-ncbi" class="slide section level1">
 <h1>The WGS database in NCBI</h1>
 <ul>
-<li>Stands for Whole Genome Shotgun</li>
-<li>“Genome assemblies of incomplete genomes or incomplete chromosomes of prokaryotes or eukaryotes that are generally being sequenced by a whole genome shotgun strategy.” -NCBI</li>
-<li>Useful for looking at species that have not been thoroughly studied before.</li>
-<li>But, genes are often un-annotated or incorrectly annotated (especially for insects).</li>
+<li><p>Stands for Whole Genome Shotgun</p></li>
+<li><p>“Genome assemblies of incomplete genomes or incomplete chromosomes of prokaryotes or eukaryotes that are generally being sequenced by a whole genome shotgun strategy.” -NCBI</p></li>
+<li><p>Useful for looking at species that have not been thoroughly studied before.</p></li>
+<li><p>But, genes are often un-annotated or incorrectly annotated (especially for insects).</p></li>
 </ul>
 </div>
 <div id="how-my-undergrad-lab-did-their-wgs-blast" class="slide section level1">
 <h1>How my undergrad lab did their WGS BLAST</h1>
-<p><sub> 1. Look up a gene of interest and find the protein sequence. 2. Copy protein sequence into NCBI tBLASTn program. 3. Enter species name of interest (typically one at a time). 4. Execute BLAST. 5. Open the WGS scaffold of potential hit. 6. Copy scaffold into EMBOSS Sixpack translation tool. 7. Find the open reading frame that includes the sequence of interest. 8. For the first exon, keep going upstream until you reach a stop, and then backtrack to find the first potential starting methionine. 9. For the other end of exon 1, look for a splice site: GT(A/G)AGT and record down what nucleotide is part of the splice codon. 10. At the beginning of exon 2, look for the other splice site: (C/T)AG/(A/G) and record the two nucleotides on the right of AG in the splice site and combine it with the single nucleotide on the first exon splice site to determine the splice codon amino acid. 11. Continue on with exon 2 until a stop codon is reached. 12. Put both exons together along with splice codon and translate it. 13. Put the nucleotides and amino acids in FastA format and record in an excel sheet. #### Basically, lots of clicking around to different website and painstakingly searching for codons/splice sites by hand! Often took 15+ minutes to find a single gene in one species (and we did HUNDREDS of these).</p>
+<ol style="list-style-type: decimal">
+<li>Look up a gene of interest and find the protein sequence.</li>
+<li>Copy protein sequence into NCBI tBLASTn program.</li>
+<li>Enter species name of interest (typically one at a time).</li>
+<li>Execute BLAST.</li>
+<li>Open the WGS scaffold of potential hit.</li>
+<li>Copy scaffold into EMBOSS Sixpack translation tool.</li>
+<li>Find the open reading frame that includes the sequence of interest.</li>
+<li>For the first exon, keep going upstream until you reach a stop, and then backtrack to find the first potential starting methionine.</li>
+<li>For the other end of exon 1, look for a splice site: GT(A/G)AGT and record down what nucleotide is part of the splice codon.</li>
+<li>At the beginning of exon 2, look for the other splice site: (C/T)AG/(A/G) and record the two nucleotides on the right of AG in the splice site and combine it with the single nucleotide on the first exon splice site to determine the splice codon amino acid.</li>
+<li>Continue on with exon 2 until a stop codon is reached.</li>
+<li>Put both exons together along with splice codon and translate it.</li>
+<li>Put the nucleotides and amino acids in FastA format and record in an excel sheet.</li>
+</ol>
+<p>Basically, lots of clicking around to different website and painstakingly searching for codons/splice sites by hand! Often took 15+ minutes to find a single gene in one species (and we did HUNDREDS of these).</p>
 </div>
 <div id="what-is-wgs-wizard" class="slide section level1">
 <h1>What is WGS Wizard?</h1>
-<p>WGS Wizard automates the process of finding a gene sequence from a WGS BLAST result. This enhances efficiency (~15-30 seconds per query!) and also eliminates human error/bias while enhancing reproducibility. - Step 1: Import packackes (mainly built on Biopython) - Step 2: Define the WGS database - Step 3: Run the BLAST - Step 4: Figure out the gene sequence Step 4 is the hard part! Focusing on that for this presentation.</p>
+<p>WGS Wizard automates the process of finding a gene sequence from a WGS BLAST result. This enhances efficiency (~15-30 seconds per query!) and also eliminates human error/bias while enhancing reproducibility.</p>
+<ul>
+<li><p>Step 1: Import packackes (mainly built on Biopython)</p></li>
+<li><p>Step 2: Define the WGS database</p></li>
+<li><p>Step 3: Run the BLAST</p></li>
+<li><p>Step 4: Figure out the gene sequence</p></li>
+</ul>
+<p>Step 4 is the hard part! Focusing on that for this presentation.</p>
 </div>
 <div id="getting-the-scaffold-and-ordering-exons" class="slide section level1">
 <h1>Getting the scaffold and ordering exons</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">def</span> wgsseq(email: <span class="bu">str</span>, blast: <span class="bu">list</span>):</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co">    :param email: Your email address (required for Entrez queries).</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co">    :param blast: A list of BLAST results.</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">    :return: A Bio.Seq.Seq object containing the complete gene sequence.</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">    <span class="co">#Get scaffold sequence</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">    Entrez.email <span class="op">=</span> email</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">    accession <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].accession</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">    <span class="cf">with</span> Entrez.efetch(db<span class="op">=</span><span class="st">&quot;nucleotide&quot;</span>, rettype<span class="op">=</span><span class="st">&quot;gb&quot;</span>, retmode<span class="op">=</span><span class="st">&quot;text&quot;</span>, <span class="bu">id</span><span class="op">=</span>accession) <span class="im">as</span> handle:</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">        seq_record <span class="op">=</span> SeqIO.read(handle, <span class="st">&quot;gb&quot;</span>)</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">    <span class="co">#Put exons in proper order</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">    <span class="cf">if</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>].sbjct_start <span class="op">&lt;</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>].sbjct_start:</a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">        exon1 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>]</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15">        exon2 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb1-16" data-line-number="16">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb1-17" data-line-number="17">        exon1 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb1-18" data-line-number="18">        exon2 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">def</span> wgsseq(email: <span class="bu">str</span>, blast: <span class="bu">list</span>):</a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="co">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">    :param email: Your email address (required for Entrez queries).</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">    :param blast: A list of BLAST results.</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co">    :return: A Bio.Seq.Seq object containing the complete gene sequence.</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="co">#Get scaffold sequence</span></a>
+<a class="sourceLine" id="cb1-8" title="8">    Entrez.email <span class="op">=</span> email</a>
+<a class="sourceLine" id="cb1-9" title="9">    accession <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].accession</a>
+<a class="sourceLine" id="cb1-10" title="10">    <span class="cf">with</span> Entrez.efetch(db<span class="op">=</span><span class="st">&quot;nucleotide&quot;</span>, rettype<span class="op">=</span><span class="st">&quot;gb&quot;</span>, retmode<span class="op">=</span><span class="st">&quot;text&quot;</span>, <span class="bu">id</span><span class="op">=</span>accession) <span class="im">as</span> handle:</a>
+<a class="sourceLine" id="cb1-11" title="11">        seq_record <span class="op">=</span> SeqIO.read(handle, <span class="st">&quot;gb&quot;</span>)</a>
+<a class="sourceLine" id="cb1-12" title="12">    <span class="co">#Put exons in proper order</span></a>
+<a class="sourceLine" id="cb1-13" title="13">    <span class="cf">if</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>].sbjct_start <span class="op">&lt;</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>].sbjct_start:</a>
+<a class="sourceLine" id="cb1-14" title="14">        exon1 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>]</a>
+<a class="sourceLine" id="cb1-15" title="15">        exon2 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb1-16" title="16">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb1-17" title="17">        exon1 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb1-18" title="18">        exon2 <span class="op">=</span> blast[<span class="dv">0</span>].alignments[<span class="dv">0</span>].hsps[<span class="dv">0</span>]</a></code></pre></div>
 </div>
 <div id="finding-exon-1" class="slide section level1">
 <h1>Finding exon 1</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1">    <span class="co">#Find the first upstream in-frame stop codon</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">    e1upstream <span class="op">=</span> seq_record.seq[<span class="dv">0</span> : exon1.sbjct_start <span class="op">+</span> <span class="dv">4</span>]</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">    e1stop <span class="op">=</span> e1upstream.rfind(<span class="st">&#39;TAA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TGA&#39;</span>)</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">    <span class="cf">while</span> (exon1.sbjct_start <span class="op">-</span> <span class="dv">1</span> <span class="op">-</span> e1stop) <span class="op">%</span> <span class="dv">3</span> <span class="op">!=</span> <span class="dv">0</span> <span class="kw">and</span> e1stop <span class="op">!=</span> exon1.sbjct_start:</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">        e1stop <span class="op">=</span> e1upstream[<span class="dv">0</span> : e1stop].rfind(<span class="st">&#39;TAA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TGA&#39;</span>)</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">    <span class="co">#Find the first in-frame start codon after the stop</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">    e1start <span class="op">=</span> e1upstream[e1stop : ].find(<span class="st">&#39;ATG&#39;</span>)</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">    <span class="cf">if</span> e1start <span class="op">!=</span> <span class="dv">-1</span>:</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">        e1start <span class="op">=</span> e1start <span class="op">+</span> e1stop</a>
-<a class="sourceLine" id="cb2-10" data-line-number="10">        <span class="cf">while</span> (exon1.sbjct_start <span class="op">-</span> <span class="dv">1</span> <span class="op">-</span> e1start) <span class="op">%</span> <span class="dv">3</span> <span class="op">!=</span> <span class="dv">0</span> <span class="kw">and</span> e1start <span class="op">!=</span> exon1.sbjct_start:</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">            e1start <span class="op">=</span> e1upstream[e1stop <span class="op">+</span> e1start <span class="op">+</span> <span class="dv">1</span> : ].find(<span class="st">&#39;ATG&#39;</span>) <span class="op">+</span> e1stop <span class="op">+</span> e1start <span class="op">+</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb2-13" data-line-number="13">        e1start <span class="op">=</span> e1stop <span class="op">+</span> <span class="dv">3</span></a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">    <span class="co">#Find the exon1 splice site</span></a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">    e1downstream <span class="op">=</span> seq_record.seq[exon1.sbjct_end <span class="op">-</span> <span class="dv">6</span> :]</a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">    e1splice <span class="op">=</span> e1downstream.find(<span class="st">&#39;GTAAGT&#39;</span> <span class="kw">or</span> <span class="st">&#39;GTGAGT&#39;</span>)</a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">    e1splice <span class="op">=</span> e1splice <span class="op">+</span> exon1.sbjct_end <span class="op">-</span> <span class="dv">6</span></a>
-<a class="sourceLine" id="cb2-18" data-line-number="18">    exon1_complete <span class="op">=</span> seq_record.seq[e1start : e1splice]</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1">    <span class="co">#Find the first upstream in-frame stop codon</span></a>
+<a class="sourceLine" id="cb2-2" title="2">    e1upstream <span class="op">=</span> seq_record.seq[<span class="dv">0</span> : exon1.sbjct_start <span class="op">+</span> <span class="dv">4</span>]</a>
+<a class="sourceLine" id="cb2-3" title="3">    e1stop <span class="op">=</span> e1upstream.rfind(<span class="st">&#39;TAA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TGA&#39;</span>)</a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="cf">while</span> (exon1.sbjct_start <span class="op">-</span> <span class="dv">1</span> <span class="op">-</span> e1stop) <span class="op">%</span> <span class="dv">3</span> <span class="op">!=</span> <span class="dv">0</span> <span class="kw">and</span> e1stop <span class="op">!=</span> exon1.sbjct_start:</a>
+<a class="sourceLine" id="cb2-5" title="5">        e1stop <span class="op">=</span> e1upstream[<span class="dv">0</span> : e1stop].rfind(<span class="st">&#39;TAA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TGA&#39;</span>)</a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="co">#Find the first in-frame start codon after the stop</span></a>
+<a class="sourceLine" id="cb2-7" title="7">    e1start <span class="op">=</span> e1upstream[e1stop : ].find(<span class="st">&#39;ATG&#39;</span>)</a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="cf">if</span> e1start <span class="op">!=</span> <span class="dv">-1</span>:</a>
+<a class="sourceLine" id="cb2-9" title="9">        e1start <span class="op">=</span> e1start <span class="op">+</span> e1stop</a>
+<a class="sourceLine" id="cb2-10" title="10">        <span class="cf">while</span> (exon1.sbjct_start <span class="op">-</span> <span class="dv">1</span> <span class="op">-</span> e1start) <span class="op">%</span> <span class="dv">3</span> <span class="op">!=</span> <span class="dv">0</span> <span class="kw">and</span> e1start <span class="op">!=</span> exon1.sbjct_start:</a>
+<a class="sourceLine" id="cb2-11" title="11">            e1start <span class="op">=</span> e1upstream[e1stop <span class="op">+</span> e1start <span class="op">+</span> <span class="dv">1</span> : ].find(<span class="st">&#39;ATG&#39;</span>) <span class="op">+</span> e1stop <span class="op">+</span> e1start <span class="op">+</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-12" title="12">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb2-13" title="13">        e1start <span class="op">=</span> e1stop <span class="op">+</span> <span class="dv">3</span></a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="co">#Find the exon1 splice site</span></a>
+<a class="sourceLine" id="cb2-15" title="15">    e1downstream <span class="op">=</span> seq_record.seq[exon1.sbjct_end <span class="op">-</span> <span class="dv">6</span> :]</a>
+<a class="sourceLine" id="cb2-16" title="16">    e1splice <span class="op">=</span> e1downstream.find(<span class="st">&#39;GTAAGT&#39;</span> <span class="kw">or</span> <span class="st">&#39;GTGAGT&#39;</span>)</a>
+<a class="sourceLine" id="cb2-17" title="17">    e1splice <span class="op">=</span> e1splice <span class="op">+</span> exon1.sbjct_end <span class="op">-</span> <span class="dv">6</span></a>
+<a class="sourceLine" id="cb2-18" title="18">    exon1_complete <span class="op">=</span> seq_record.seq[e1start : e1splice]</a></code></pre></div>
 </div>
 <div id="finding-exon-2" class="slide section level1">
 <h1>Finding exon 2</h1>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">    <span class="co">#Find the exon2 splice site</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">    e2upstream <span class="op">=</span> seq_record.seq[<span class="dv">0</span> : exon2.sbjct_start <span class="op">+</span> <span class="dv">5</span>]</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">    e2splice <span class="op">=</span> e2upstream.rfind(<span class="st">&#39;CAGA&#39;</span> <span class="kw">or</span> <span class="st">&#39;CAGG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAGA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAGG&#39;</span>) <span class="op">+</span> <span class="dv">3</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">    geneseq <span class="op">=</span> exon1_complete <span class="op">+</span> seq_record.seq[e2splice :]</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="co">#Find the stop codon</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">    length <span class="op">=</span> <span class="bu">len</span>(geneseq.translate(to_stop <span class="op">=</span> <span class="va">True</span>)) <span class="op">*</span> <span class="dv">3</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">    geneseq <span class="op">=</span> geneseq[<span class="dv">0</span> : length <span class="op">+</span> <span class="dv">3</span>]</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">    <span class="cf">return</span> geneseq</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1">    <span class="co">#Find the exon2 splice site</span></a>
+<a class="sourceLine" id="cb3-2" title="2">    e2upstream <span class="op">=</span> seq_record.seq[<span class="dv">0</span> : exon2.sbjct_start <span class="op">+</span> <span class="dv">5</span>]</a>
+<a class="sourceLine" id="cb3-3" title="3">    e2splice <span class="op">=</span> e2upstream.rfind(<span class="st">&#39;CAGA&#39;</span> <span class="kw">or</span> <span class="st">&#39;CAGG&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAGA&#39;</span> <span class="kw">or</span> <span class="st">&#39;TAGG&#39;</span>) <span class="op">+</span> <span class="dv">3</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    geneseq <span class="op">=</span> exon1_complete <span class="op">+</span> seq_record.seq[e2splice :]</a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="co">#Find the stop codon</span></a>
+<a class="sourceLine" id="cb3-6" title="6">    length <span class="op">=</span> <span class="bu">len</span>(geneseq.translate(to_stop <span class="op">=</span> <span class="va">True</span>)) <span class="op">*</span> <span class="dv">3</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    geneseq <span class="op">=</span> geneseq[<span class="dv">0</span> : length <span class="op">+</span> <span class="dv">3</span>]</a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="cf">return</span> geneseq</a></code></pre></div>
 </div>
 <div id="example-results" class="slide section level1">
 <h1>Example results</h1>
-<p>I BLASTed the Drosophila melanogaster Commisureless gene against 3 other fly species (virilis, willisoni, and albomicans). Time to complete using old method: ~1 hour Time to complete using WGS Wizard: ~2 minutes <img src="1.png" /></p>
+<p>I BLASTed the Drosophila melanogaster Commisureless gene against 3 other fly species (virilis, willisoni, and albomicans).</p>
+<p>Time to complete using old method: ~1 hour</p>
+<p>Time to complete using WGS Wizard: ~2 minutes</p>
+<p><img src="https://raw.githubusercontent.com/BIOF309/group-project-maya-gosztyla-project/master/Screen%20Shot%202018-12-04%20at%209.04.31%20PM.png" /></p>
 </div>
 <div id="example-results-cont." class="slide section level1">
 <h1>Example results (cont.)</h1>
-<p><img src="2.png" /></p>
+<p><img src="https://raw.githubusercontent.com/BIOF309/group-project-maya-gosztyla-project/master/Screen%20Shot%202018-12-03%20at%207.18.46%20PM.png" /></p>
 </div>
 <div id="current-limitations" class="slide section level1">
 <h1>Current Limitations</h1>
-<p>WGS Wizard still has lots of areas I want to improve! Currently the program only works for genes that satisfy the following requirements: - Must have exactly 2 exons - Both exons must appear on the same WGS scaffold - The species must be in the Drosophila genus, or use the same splice site motifs as Drosophila ## Any questions???</p>
+<p>WGS Wizard still has lots of areas I want to improve! Currently the program only works for genes that satisfy the following requirements:</p>
+<ul>
+<li><p>Must have exactly 2 exons</p></li>
+<li><p>Both exons must appear on the same WGS scaffold</p></li>
+<li><p>The species must be in the Drosophila genus, or use the same splice site motifs as Drosophila</p></li>
+</ul>
+<h2 id="any-questions">Any questions???</h2>
 </div>
 </body>
 </html>
